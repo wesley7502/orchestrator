@@ -3,8 +3,6 @@ Python file to combine the TTS and the movement tracking
 '''
 import time
 from tracker import Tracker
-import keyboard
-
 
 def main_loop():
     global prev_time
