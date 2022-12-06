@@ -11,7 +11,7 @@ and for tts
 
 ```pip install -r requirements.txt```
 
-if it failed, which happens to me, just install it separately and install the latest version
+if it failed, which happens to me, just install the failed packages(s) separately and install the latest version
 
 To run the object tracking software, use
 ```python3 .\object_track.py --tracker csrt```
