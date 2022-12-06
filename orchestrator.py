@@ -7,7 +7,8 @@ from tracker import Tracker
 def main_loop():
     global prev_time
     track = Tracker()
-
+    
+    prev_pos = track.get_values
     # give the user 7 seconds to setup tracking
     time.sleep(7)
     while(True):
