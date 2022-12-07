@@ -33,6 +33,10 @@ def track_object():
 	initBB = None
 
 	vs = cv2.VideoCapture(0)
+	# store previous midpoint of BB
+	prevBBX = 0
+	prevBBY = 0
+	direction = None
 
 	while True:
 		# grab the current frame, then handle if we are using a
@@ -55,7 +59,6 @@ def track_object():
 		r = 75
 		b1 = H
 		b2 = 0
-		direction = None
 		# draw static circle, so that when a point is detected outside
 		# we can determine direction it has moved in
 		cv2.circle(frame, (int(cX), int(cY)), r, (255, 0, 0), 3)
@@ -73,22 +76,27 @@ def track_object():
 			cv2.circle(frame, (int(w+x), int(h+y)), 5, (255, 0, 0), 3)
 			cv2.circle(frame, (int((w+2*x)/2), int((h+2*y)/2)), 5, (255, 0, 0), 3)
 
+
 			midBBX = (w+2*x)/2
 			midBBY = (h+2*y)/2
 			y1 = -m1*midBBX + b1
 			y2 = m2*midBBX + b2
-			if ((midBBX - cX)**2 + (midBBY - cY)**2) > r**2:
+			print("PrevBBX", (prevBBX - cX)**2 + (prevBBY - cY)**2, r**2)
+			if (((midBBX - cX)**2 + (midBBY - cY)**2) > r**2) and (((prevBBX - cX)**2 + (prevBBY - cY)**2) <= r**2):
 				if y1 >= midBBY and y2 >= midBBY:
 					direction = "UP"
 				elif y1 >= midBBY and y2 < midBBY:
-					direction = "LEFT"
-				elif y1 < midBBY and y2 >= midBBY:
 					direction = "RIGHT"
+				elif y1 < midBBY and y2 >= midBBY:
+					direction = "LEFT"
 				elif y1 < midBBY and y2 < midBBY:
 					direction = "DOWN"
 				print(y1, y2,midBBY, direction)
-				with open("direction.txt", 'w') as text:
-					text.write(direction)
+				with open("direction.txt", 'w') as txt:
+						txt.write(direction)
+
+			prevBBX = midBBX
+			prevBBY = midBBY
 			# initialize the set of information we'll be displaying on
 			# the frame
 			info = [

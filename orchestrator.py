@@ -15,6 +15,8 @@ from utils.model import get_model, get_vocoder
 from utils.tools import to_device, synth_samples
 from text import text_to_sequence
 
+import os
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 time1 = time.time()
@@ -155,20 +157,46 @@ if __name__ == "__main__":
     model = get_model(args, configs, device, train=False)
     vocoder = get_vocoder(model_config, device)
     text = "today's weather is very nice. Lets go out and touch some grass. A very very very very very very very very very very very very very long sentence. This is the fourth sentence"
+    with open("tts.txt", 'r') as tts_text:
+        text = tts_text.read()
     text = text.split('.')
     text_embeddings = [np.array([preprocess_english(t, preprocess_config)]) for t in text]
     i = 0
     time2 = time.time()
     print(f"preprocess took {time2-time1} sec")
-    while i < len(text):
-        duration_control = 1 #<-- adjust this in run time
+    volume = [0.33, 0.66, 1, 1.33, 1.66, 2]
+    volume_index = int((len(volume) - 1)/2)
+    duration_control = 1 #<-- adjust this in run time
+
+    while i < len(text)-1:
+        direction = None
         ids = text[i]
         raw_texts = text[i]
         speakers = np.array([0])
         text_embedding = text_embeddings[i]
         text_lens = np.array([len(text_embedding[0])])
         batchs = [(ids, raw_texts, speakers, text_embedding, text_lens, max(text_lens))]
+
+        print('/**************************************************')
+        # Initiate object tracking, need to select BBbox before speech synthesis
+        #object_track.track_object()
+        with open("direction.txt", 'r+') as txt:
+            direction = txt.read()
+            txt.truncate(0)
+        if direction is not None:
+            if direction == "RIGHT":
+                print("Increasing speed")
+                if volume_index != 0:
+                    volume_index -= 1
+                    duration_control = volume[volume_index]
+            elif direction == "LEFT":
+                print("Decreasing speed")
+                if volume_index != len(volume) - 1:
+                    volume_index += 1
+                    duration_control = volume[volume_index]
+        
         control_values = 1, 1, duration_control
+        print(ids, volume[volume_index])
         synthesize(model, args.restore_step, configs, vocoder, batchs, control_values, i)
         time3 = time.time()
         print(f"synthesis {i+1}th took {time3-time2} sec")
@@ -176,6 +204,9 @@ if __name__ == "__main__":
         playsound(f) # this is blocking, aka working as intended
         time4 = time.time()
         print(f"play {i+1}th took {time4-time3} sec")
+        print('**************************************************\\')
+        print(' ')
+        print(' ')
         time2 = time4
         i += 1
 
