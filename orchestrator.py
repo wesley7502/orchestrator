@@ -14,9 +14,8 @@ from playsound import playsound
 from utils.model import get_model, get_vocoder
 from utils.tools import to_device, synth_samples
 from text import text_to_sequence
-
+import matplotlib.pyplot as plt
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 time1 = time.time()
 def read_lexicon(lex_path):
     lexicon = {}
@@ -154,7 +153,9 @@ if __name__ == "__main__":
     # Get model
     model = get_model(args, configs, device, train=False)
     vocoder = get_vocoder(model_config, device)
-    text = "today's weather is very nice. Lets go out and touch some grass. A very very very very very very very very very very very very very long sentence. This is the fourth sentence"
+    text = 'one. one one. one one one. one one one one. one one one one one. one one one one one one. one one one one one one one. one one one one one one one one. one one one one one one one one one. one one one one one one one one one one'
+    latency = []
+    outlength = []
     text = text.split('.')
     text_embeddings = [np.array([preprocess_english(t, preprocess_config)]) for t in text]
     i = 0
@@ -172,10 +173,17 @@ if __name__ == "__main__":
         synthesize(model, args.restore_step, configs, vocoder, batchs, control_values, i)
         time3 = time.time()
         print(f"synthesis {i+1}th took {time3-time2} sec")
+        latency.append(round(time3-time2, 2))
         f = './output/result/LJSpeech' + '/' + str(i) + '.wav'
         playsound(f) # this is blocking, aka working as intended
         time4 = time.time()
+        outlength.append(round(time4-time3, 2))
         print(f"play {i+1}th took {time4-time3} sec")
         time2 = time4
         i += 1
-
+    plt.plot(latency, label='Synthesizer')
+    plt.plot(outlength, label='Audio')
+    plt.xlabel("Number of segments")
+    plt.ylabel("Time (s)")
+    plt.legend(loc='best')
+    plt.savefig('fig2.png')
