@@ -183,7 +183,8 @@ if __name__ == "__main__":
         i += 1
     plt.plot(latency, label='Synthesizer')
     plt.plot(outlength, label='Audio')
-    plt.xlabel("Number of segments")
+    plt.xlabel("Input length")
     plt.ylabel("Time (s)")
+    plt.xticks(np.arange(len(latency)), np.arange(1, len(latency)+1))
     plt.legend(loc='best')
     plt.savefig('fig2.png')
