@@ -1,5 +1,5 @@
-# orchestrator
-EECS 571 project
+# Orchestrator
+EECS 571 project: A multimodal speech synthesis tool
 
 This project is a real time TTS device.
 
