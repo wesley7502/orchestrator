@@ -1,7 +1,5 @@
 # Orchestrator
-EECS 571 project: A multimodal speech synthesis tool
-
-This project is a real time TTS device.
+EECS 571 project: a real-time multimodal speech synthesis tool, uses visual input (head motion) to control speech prosody (e.g. speed).
 
 be sure to install opencv by using
 
